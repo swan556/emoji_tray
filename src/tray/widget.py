@@ -1,8 +1,13 @@
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QScrollArea, QMainWindow
 from functools import partial
-import csv
+from PySide6.QtCore import Qt
+import time
+import csv, subprocess
+from pynput import mouse
+import pyautogui
+import pyperclip
 
-dataset = "./dataset/full_emoji.csv" # dataset location
+dataset = "/home/swan/Documents/py_files/emoji_tray_for_linux/dataset/full_emoji.csv" # dataset location
 emoji_list = list(csv.reader(open(dataset, "r")))[1:] # list of all emojis
 num_emojis = len(emoji_list) # total number of emojis
 
@@ -12,6 +17,13 @@ n_row = num_emojis//n_col
 class Widget(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        self.setWindowFlag(Qt.Tool, True)
+        self.setFocusPolicy(Qt.NoFocus)
+
+        listener = mouse.Listener(on_click=self.on_click)
+        listener.start()
 
         self.setFixedSize(500, 500)
         main_widget = QWidget()
@@ -40,6 +52,16 @@ class Widget(QMainWindow):
 
         self.setCentralWidget(scroll)
 
-    
+
     def emoji_pressed(self, emoji):
-        print("pressed: ", emoji)
+        pyperclip.copy(emoji)
+        current_position = pyautogui.position()
+        if saved_position:
+            pyautogui.click(saved_position)
+            pyautogui.hotkey("ctrl", "v")
+            pyautogui.moveTo(current_position)
+    def on_click(self, x, y, button, pressed):
+        if pressed:
+            global saved_position
+            saved_position = (x, y)
+            return False
