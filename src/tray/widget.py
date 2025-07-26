@@ -57,7 +57,9 @@ class Widget(QMainWindow):
         pyperclip.copy(emoji)
         current_position = pyautogui.position()
         if saved_position:
+            time.sleep(0.1)
             pyautogui.click(saved_position)
+            time.sleep(0.1)
             pyautogui.hotkey("ctrl", "v")
             pyautogui.moveTo(current_position)
     def on_click(self, x, y, button, pressed):
